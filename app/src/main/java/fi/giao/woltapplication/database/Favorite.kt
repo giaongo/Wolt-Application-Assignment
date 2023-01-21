@@ -7,7 +7,7 @@ import androidx.room.*
 data class Favorite(
     @PrimaryKey(autoGenerate = true)
     val id:Int,
-    val venue_id:Int
+    val venue_id:String
 )
 @Dao
 interface FavoriteDao{

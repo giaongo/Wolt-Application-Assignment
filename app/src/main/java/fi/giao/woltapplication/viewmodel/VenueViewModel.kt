@@ -13,10 +13,8 @@ import org.json.JSONObject
 
 class VenueViewModel(application: Application): AndroidViewModel(application) {
     private val appRepository = AppRepository(AppDatabase.getInstance(application))
-    val currentCoordinate = mutableListOf<String>()
 
     val venueList:LiveData<List<Venue>> = appRepository.getAllVenues()
-    val venueFavoriteList:LiveData<List<Favorite>> = appRepository.getAllFavorites()
 
     fun addFavorite(favoriteVenue:Favorite) = viewModelScope.launch {
         appRepository.addFavorite(favoriteVenue)
@@ -24,14 +22,11 @@ class VenueViewModel(application: Application): AndroidViewModel(application) {
     fun removeFavorite(favoriteVenue: Favorite) = viewModelScope.launch {
         appRepository.removeFavorite(favoriteVenue)
     }
-    fun setCurrentCoordinate(coordinate:List<String>) {
-        currentCoordinate.addAll(coordinate)
-    }
 
     /*
      * This function does network fetching and returns Venue object
      */
-    fun getVenueData() {
+    fun getVenueData(currentCoordinate:List<String>) {
         viewModelScope.launch {
             Log.d("resultFromModel",currentCoordinate.toString())
             appRepository.getDataFromNetworkAndSave(currentCoordinate)

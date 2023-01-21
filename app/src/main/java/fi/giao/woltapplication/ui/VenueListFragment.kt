@@ -51,11 +51,7 @@ class VenueListFragment : Fragment() {
             maxWaitTime = TimeUnit.MINUTES.toMillis(2)
             priority  = PRIORITY_HIGH_ACCURACY
         }
-
-        viewModel.apply {
-            setCurrentCoordinate(getLocation())
-            getVenueData()
-        }
+        getLocation()
         val venueAdapter = VenueAdapter(requireContext())
         binding.venueListRecyclerView.apply {
             adapter = venueAdapter
@@ -68,8 +64,7 @@ class VenueListFragment : Fragment() {
     }
 
 
-    private fun getLocation():List<String> {
-        val coordinateResult = mutableListOf<String>()
+    private fun getLocation(){
         if(checkPermissions()) {
             val currentLocationTask: Task<Location> = fusedLocationProviderClient.getCurrentLocation(
                 PRIORITY_HIGH_ACCURACY,
@@ -81,14 +76,12 @@ class VenueListFragment : Fragment() {
                     Toast.makeText(requireActivity(),"Null Received",Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(requireActivity(),"Get Coordinates", Toast.LENGTH_SHORT).show()
-                    coordinateResult.addAll(listOf(location.latitude.toString(),location.longitude.toString()))
-
+                    viewModel.getVenueData(listOf(location.latitude.toString(),location.longitude.toString()))
                 }
             }
         } else {
             requestPermission()
         }
-        return coordinateResult.toList()
     }
 
     private fun checkPermissions() : Boolean{
