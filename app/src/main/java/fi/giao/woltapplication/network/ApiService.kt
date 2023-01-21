@@ -8,6 +8,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 private const val BASE_URL = "https://restaurant-api.wolt.com/v1/pages/"
 private val retrofit = Retrofit
@@ -17,8 +19,8 @@ private val retrofit = Retrofit
 
 
 interface ApiService {
-    @GET("restaurants?lat=60.170187&lon=24.930599")
-    suspend fun getDataString():String
+    @GET("restaurants")
+    suspend fun getDataString(@Query("lat") lat:String, @Query("lon") lon:String):String
 }
 object VenueApi {
     val retrofitService: ApiService by lazy {

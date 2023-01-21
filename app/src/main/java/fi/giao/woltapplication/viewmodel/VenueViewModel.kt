@@ -33,7 +33,7 @@ class VenueViewModel(application: Application): AndroidViewModel(application) {
     private fun getVenueData() {
         viewModelScope.launch {
             try {
-                val stringVenue = VenueApi.retrofitService.getDataString()
+                val stringVenue = VenueApi.retrofitService.getDataString(lat = "60.170187", lon = "24.930599")
                 val listOfVenue = toVenue(stringVenue)
                 result.value = listOfVenue
             } catch (e:Exception) {
