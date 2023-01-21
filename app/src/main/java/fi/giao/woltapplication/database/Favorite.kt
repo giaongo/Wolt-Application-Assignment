@@ -9,7 +9,7 @@ data class Favorite(
     val id:Int,
     val venue_id:Int
 )
-
+@Dao
 interface FavoriteDao{
     @Query("SELECT * FROM Favorite")
     fun getAllFavorites(): LiveData<List<Favorite>>
