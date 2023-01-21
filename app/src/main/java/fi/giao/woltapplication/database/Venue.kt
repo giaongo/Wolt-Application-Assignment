@@ -10,11 +10,7 @@ data class Venue (
     val name:String,
     val short_description:String,
     val url:String
-) {
-    override fun toString(): String {
-        return "id $id name $name description $short_description url $url"
-    }
-}
+)
 
 @Dao
 interface VenueDao {

@@ -3,11 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
+    android:label="Wolt Assignment"
     app:startDestination="@id/venueListFragment">
 
     <fragment
         android:id="@+id/venueListFragment"
         android:name="fi.giao.woltapplication.ui.VenueListFragment"
-        android:label="fragment_venue_list"
+        android:label="Wolt Assigment"
         tools:layout="@layout/fragment_venue_list" />
 </navigation>

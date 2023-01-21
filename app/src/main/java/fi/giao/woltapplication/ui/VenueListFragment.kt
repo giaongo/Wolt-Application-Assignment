@@ -44,14 +44,6 @@ class VenueListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val venueAdapter = VenueAdapter(requireContext())
-        binding.venueListRecyclerView.apply {
-            adapter = venueAdapter
-            layoutManager = LinearLayoutManager(requireContext())
-        }
-        viewModel.result.observe(viewLifecycleOwner) {
-            venueAdapter.submitList(it)
-        }
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
         locationRequest = LocationRequest.create().apply {
             interval = TimeUnit.SECONDS.toMillis(60)
@@ -59,11 +51,25 @@ class VenueListFragment : Fragment() {
             maxWaitTime = TimeUnit.MINUTES.toMillis(2)
             priority  = PRIORITY_HIGH_ACCURACY
         }
-        getLocation()
+
+        viewModel.apply {
+            setCurrentCoordinate(getLocation())
+            getVenueData()
+        }
+        val venueAdapter = VenueAdapter(requireContext())
+        binding.venueListRecyclerView.apply {
+            adapter = venueAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+        }
+        viewModel.venueList.observe(viewLifecycleOwner) {
+            venueAdapter.submitList(it)
+        }
+
     }
 
 
-    private fun getLocation() {
+    private fun getLocation():List<String> {
+        val coordinateResult = mutableListOf<String>()
         if(checkPermissions()) {
             val currentLocationTask: Task<Location> = fusedLocationProviderClient.getCurrentLocation(
                 PRIORITY_HIGH_ACCURACY,
@@ -74,27 +80,15 @@ class VenueListFragment : Fragment() {
                 if (location == null) {
                     Toast.makeText(requireActivity(),"Null Received",Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(requireActivity(),"Get Success", Toast.LENGTH_SHORT).show()
-                    binding.headingText.text = "${location.latitude} ${location.longitude} "
+                    Toast.makeText(requireActivity(),"Get Coordinates", Toast.LENGTH_SHORT).show()
+                    coordinateResult.addAll(listOf(location.latitude.toString(),location.longitude.toString()))
 
                 }
-
             }
         } else {
-            val requestMultiplePermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-                permissions.entries.forEach {
-                    Log.d("gps", "${it.key} = ${it.value}")
-                    getLocation()
-                }
-            }
-            requestMultiplePermissions.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            )
+            requestPermission()
         }
-
+        return coordinateResult.toList()
     }
 
     private fun checkPermissions() : Boolean{
@@ -107,6 +101,19 @@ class VenueListFragment : Fragment() {
         return false
     }
 
-
+    private fun requestPermission() {
+        val requestMultiplePermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.entries.forEach {
+                Log.d("gps", "${it.key} = ${it.value}")
+                getLocation()
+            }
+        }
+        requestMultiplePermissions.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        )
+    }
 }
 
