@@ -12,13 +12,14 @@
     <androidx.cardview.widget.CardView
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="20dp"
         app:cardCornerRadius="8dp">
 
         <ImageView
             android:id="@+id/venue_image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:scaleType="centerCrop"
             android:importantForAccessibility="no"
             tools:src="@drawable/ic_launcher_background" />
     </androidx.cardview.widget.CardView>
@@ -45,6 +46,7 @@
                 tools:text="Venue name" />
 
             <TextView
+                android:id="@+id/venue_decription_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"

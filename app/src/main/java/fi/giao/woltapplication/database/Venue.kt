@@ -6,11 +6,16 @@ import androidx.room.*
 @Entity
 data class Venue (
     @PrimaryKey
-    val id:Int,
+    val id:String,
     val name:String,
     val short_description:String,
     val url:String
-)
+) {
+    override fun toString(): String {
+        return "id $id name $name description $short_description url $url"
+    }
+}
+
 @Dao
 interface VenueDao {
     @Query("SELECT * FROM Venue")
