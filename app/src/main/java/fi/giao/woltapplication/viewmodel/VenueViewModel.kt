@@ -30,10 +30,14 @@ class VenueViewModel(application: Application): AndroidViewModel(application) {
     fun removeFavorite(favoriteVenue: Favorite) = viewModelScope.launch {
         appRepository.removeFavorite(favoriteVenue)
     }
+
+    /**
+     * This function does network fetching and returns Venue object
+     */
     private fun getVenueData() {
         viewModelScope.launch {
             try {
-                val stringVenue = VenueApi.retrofitService.getDataString(lat = "60.170187", lon = "24.930599")
+                val stringVenue = VenueApi.retrofitService.getDataString(lat = "60.2374583", lon = "24.8783533")
                 val listOfVenue = toVenue(stringVenue)
                 result.value = listOfVenue
             } catch (e:Exception) {
@@ -43,13 +47,17 @@ class VenueViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
+    /**
+     * This function takes venue json string from network fetch, filter and deserialize it to Venue object
+     */
     private fun toVenue(venueString:String):List<Venue> {
         val venueList:MutableList<Venue> = mutableListOf()
         val obj = JSONObject(venueString)
         val jsonArray = obj.getJSONArray("sections")
         for (index in 1 until jsonArray.length()) {
             val items = jsonArray.getJSONObject(index).getJSONArray("items")
-            for (indexItem in 0 until items.length()) {
+            val total = if(items.length() > 15) 15 else items.length()
+            for (indexItem in 0 until total) {
                 val venue = items.getJSONObject(indexItem).getJSONObject("venue")
                 val image = items.getJSONObject(indexItem).getJSONObject("image")
                 val url = image.getString("url")
@@ -69,11 +77,6 @@ class VenueViewModel(application: Application): AndroidViewModel(application) {
         return venueList.toList()
     }
 
-
-
-    fun printData() {
-        Log.d("ViewModel","Data is printing")
-    }
 }
 
 class VenueViewModelFactory(private val app:Application):ViewModelProvider.Factory {
