@@ -41,6 +41,8 @@
                 android:id="@+id/venue_name_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:textColor="@color/black"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 tools:text="Venue name" />
@@ -49,6 +51,8 @@
                 android:id="@+id/venue_decription_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:textColor="@color/black"
                 android:textSize="12sp"
                 tools:text="Venue description" />
 

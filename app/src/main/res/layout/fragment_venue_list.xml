@@ -10,9 +10,11 @@
         android:id="@+id/heading_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/baloo"
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
         android:text="@string/venue_heading"
+        android:textColor="@color/black"
         android:textSize="32sp"
         android:textStyle="bold" />
 

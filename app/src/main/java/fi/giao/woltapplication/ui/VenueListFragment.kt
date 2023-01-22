@@ -63,6 +63,7 @@ class VenueListFragment : Fragment() {
 
         viewModel.venueAndFavoriteList.observe(viewLifecycleOwner) {
             venueAdapter.submitList(it)
+
         }
     }
 
