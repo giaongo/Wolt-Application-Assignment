@@ -9,13 +9,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-class AppRepository(private val appDatabase: AppDatabase){
-
-    /**
-     * Function to retrieve data from network and save to local database
-     */
+class AppRepository(private val appDatabase: AppDatabase) {
+    // Function to retrieve data from network and save to local database
     suspend fun getDataFromNetworkAndSave(coordinates: List<String>?) {
-        Log.d("result","coordinate" + coordinates.toString())
+        Log.d("result", "coordinate" + coordinates.toString())
         coordinates?.let {
             withContext(Dispatchers.IO) {
                 insertAllVenues(getVenueData(it))
@@ -24,29 +21,26 @@ class AppRepository(private val appDatabase: AppDatabase){
 
     }
 
-    /*
-    * This function does network fetching and returns Venue object
-    */
-    private suspend fun getVenueData(coordinates:List<String>): List<Venue> {
+    // This function does network fetching and returns Venue object
+    private suspend fun getVenueData(coordinates: List<String>): List<Venue> {
         return try {
-            val stringVenue = VenueApi.retrofitService.getDataString(lat = coordinates[0], lon = coordinates[1])
+            val stringVenue =
+                VenueApi.retrofitService.getDataString(lat = coordinates[0], lon = coordinates[1])
             toVenue(stringVenue)
-        } catch(e:Exception) {
-            Log.e("Failure in fetching",e.message.toString())
+        } catch (e: Exception) {
+            Log.e("Failure in fetching", e.message.toString())
             listOf()
         }
     }
 
-    /**
-     * This function takes venue json string from network fetch, filter and deserialize it to Venue object
-     */
-    private fun toVenue(venueString:String):List<Venue> {
-        val venueList:MutableList<Venue> = mutableListOf()
+    // This function takes venue json string from network fetch, filter and deserialize it to Venue object
+    private fun toVenue(venueString: String): List<Venue> {
+        val venueList: MutableList<Venue> = mutableListOf()
         val obj = JSONObject(venueString)
         val jsonArray = obj.getJSONArray("sections")
         for (index in 1 until jsonArray.length()) {
             val items = jsonArray.getJSONObject(index).getJSONArray("items")
-            val total = if(items.length() > 15) 15 else items.length()
+            val total = if (items.length() > 15) 15 else items.length()
             for (indexItem in 0 until total) {
                 val venue = items.getJSONObject(indexItem).getJSONObject("venue")
                 val image = items.getJSONObject(indexItem).getJSONObject("image")
@@ -67,15 +61,15 @@ class AppRepository(private val appDatabase: AppDatabase){
         return venueList.toList()
     }
 
-
     // Functions for venueDao
-    private suspend fun insertAllVenues(venueList:List<Venue>) = appDatabase.venueDao.insertAllVenues(venueList)
+    private suspend fun insertAllVenues(venueList: List<Venue>) =
+        appDatabase.venueDao.insertAllVenues(venueList)
 
     // Functions for favoriteDao
-    fun getAllFavorites() = appDatabase.favoriteDao.getAllFavorites()
-    suspend fun addFavorite(favoriteVenue: Favorite) = appDatabase.favoriteDao.addFavorite(favoriteVenue)
-    suspend fun removeFavorite(venueId:String) = appDatabase.favoriteDao.removeFavorite(venueId)
+    suspend fun addFavorite(favoriteVenue: Favorite) =
+        appDatabase.favoriteDao.addFavorite(favoriteVenue)
+    suspend fun removeFavorite(venueId: String) = appDatabase.favoriteDao.removeFavorite(venueId)
 
     // Functions for VenueAndFavoriteDao
-    fun getVenueAndFavorite()= appDatabase.venueAndFavoriteDao.getVenueAndFavorite()
+    fun getVenueAndFavorite() = appDatabase.venueAndFavoriteDao.getVenueAndFavorite()
 }

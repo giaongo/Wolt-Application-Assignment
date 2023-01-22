@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -141,7 +140,7 @@ class VenueListFragment : Fragment() {
     /* This function does venue favorite checking, un-mark or mark venue based on the click and
        isFavorite value state. Display Toast as a result of the click event */
     private fun heartClickListener(venueAndFavorite: VenueAndFavorite): Boolean {
-        viewModel.venueInFavorite.observe(viewLifecycleOwner) {
+        viewModel.venueIdList.observe(viewLifecycleOwner) {
             isFavorite = VenueFunctions.isFavorite(venue_id = venueAndFavorite.venue.id, list = it)
         }
         if (!isFavorite) {

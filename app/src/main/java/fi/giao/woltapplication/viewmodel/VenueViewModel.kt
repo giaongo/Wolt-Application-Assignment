@@ -1,7 +1,6 @@
 package fi.giao.woltapplication.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
 import fi.giao.woltapplication.database.AppDatabase
 import fi.giao.woltapplication.database.Favorite
@@ -9,21 +8,13 @@ import fi.giao.woltapplication.database.VenueAndFavorite
 import fi.giao.woltapplication.repository.AppRepository
 import kotlinx.coroutines.launch
 
-/**
- * Date: 22/1/2023
- *
- */
 class VenueViewModel(application: Application): AndroidViewModel(application) {
     private val appRepository = AppRepository(AppDatabase.getInstance(application))
-
-    private val favoriteList:LiveData<List<Favorite>> = appRepository.getAllFavorites()
-
-    val venueInFavorite: LiveData<List<String?>> = Transformations.map(favoriteList) {
-        it.map { favorite -> favorite.venue_id}
-    }
-
     val venueAndFavoriteList:LiveData<List<VenueAndFavorite>> = appRepository.getVenueAndFavorite()
 
+    val venueIdList: LiveData<List<String?>> = Transformations.map(venueAndFavoriteList) {
+        it.map { element -> element.favorite?.venue_id}
+    }
 
     fun addFavorite(favoriteVenue:Favorite) = viewModelScope.launch {
         appRepository.addFavorite(favoriteVenue)
@@ -32,17 +23,14 @@ class VenueViewModel(application: Application): AndroidViewModel(application) {
         appRepository.removeFavorite(venueId)
     }
 
-    /*
-     * This function does network fetching and returns Venue object
-     */
     fun getVenueData(currentCoordinate:List<String>) {
         viewModelScope.launch {
-            Log.d("resultFromModel",currentCoordinate.toString())
             appRepository.getDataFromNetworkAndSave(currentCoordinate)
         }
     }
 }
 
+// Factory class to initialize view model with application parameter
 class VenueViewModelFactory(private val app:Application):ViewModelProvider.Factory {
     override fun <T: ViewModel> create(modelClass:Class<T>):T {
         return if (modelClass.isAssignableFrom(VenueViewModel::class.java)) {

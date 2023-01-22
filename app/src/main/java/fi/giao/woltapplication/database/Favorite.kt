@@ -11,9 +11,6 @@ data class Favorite(
 )
 @Dao
 interface FavoriteDao{
-    @Query("SELECT * FROM Favorite")
-    fun getAllFavorites(): LiveData<List<Favorite>>
-
     @Insert(onConflict= OnConflictStrategy.REPLACE)
     suspend fun addFavorite(favoriteVenue:Favorite):Long
 
