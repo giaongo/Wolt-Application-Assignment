@@ -122,8 +122,7 @@ class VenueListFragment : Fragment() {
 
     private fun requestPermission() {
         val requestMultiplePermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.entries.forEach {
-                Log.d("gps", "${it.key} = ${it.value}")
+            if(!(permissions["ACCESS_COARSE_LOCATION"] == true || permissions["ACCESS_FINE_LOCATION"] == true)) {
                 getLocation()
             }
         }
