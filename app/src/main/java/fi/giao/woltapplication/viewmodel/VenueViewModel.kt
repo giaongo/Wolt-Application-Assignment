@@ -5,17 +5,15 @@ import android.util.Log
 import androidx.lifecycle.*
 import fi.giao.woltapplication.database.AppDatabase
 import fi.giao.woltapplication.database.Favorite
-import fi.giao.woltapplication.database.Venue
 import fi.giao.woltapplication.database.VenueAndFavorite
-import fi.giao.woltapplication.network.VenueApi
 import fi.giao.woltapplication.repository.AppRepository
 import kotlinx.coroutines.launch
-import org.json.JSONObject
+
 
 class VenueViewModel(application: Application): AndroidViewModel(application) {
     private val appRepository = AppRepository(AppDatabase.getInstance(application))
 
-    val favoriteList:LiveData<List<Favorite>> = appRepository.getAllFavorites()
+    private val favoriteList:LiveData<List<Favorite>> = appRepository.getAllFavorites()
 
     val venueInFavorite: LiveData<List<String?>> = Transformations.map(favoriteList) {
         it.map { favorite -> favorite.venue_id}
