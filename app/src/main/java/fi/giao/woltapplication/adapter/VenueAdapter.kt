@@ -1,7 +1,6 @@
 package fi.giao.woltapplication.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -9,19 +8,35 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import fi.giao.woltapplication.R
-import fi.giao.woltapplication.database.Venue
+import fi.giao.woltapplication.database.VenueAndFavorite
 import fi.giao.woltapplication.databinding.ItemVenueBinding
 
-class VenueAdapter(val context: Context): ListAdapter<Venue, VenueAdapter.VenueViewHolder>(DiffCallBack) {
+class VenueAdapter(
+    private val context: Context,
+    private val listener: (VenueAndFavorite) -> Boolean
+) : ListAdapter<VenueAndFavorite, VenueAdapter.VenueViewHolder>(DiffCallBack) {
 
-    inner class VenueViewHolder(private val binding: ItemVenueBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bindData(venue:Venue) {
+    inner class VenueViewHolder(private val binding: ItemVenueBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            binding.favoriteButton.setOnClickListener {
+                listener(getItem(adapterPosition))
+            }
+        }
+
+        fun bindData(venueAndFavorite: VenueAndFavorite) {
             binding.apply {
-                venueNameTextView.text = venue.name
-                venueDecriptionTextView.text = venue.short_description
+                venueNameTextView.text = venueAndFavorite.venue.name
+                venueDecriptionTextView.text = venueAndFavorite.venue.short_description
+                if (venueAndFavorite.favorite == null) {
+                    favoriteButton.setImageResource(R.drawable.ic_favorite_false)
+                } else {
+                    favoriteButton.setImageResource(R.drawable.ic_favorite_true)
+                }
             }
             Glide.with(context)
-                .load(venue.url)
+                .load(venueAndFavorite.venue.url)
                 .placeholder(R.drawable.ic_loading)
                 .error(R.drawable.ic_error)
                 .into(binding.venueImageView)
@@ -30,7 +45,7 @@ class VenueAdapter(val context: Context): ListAdapter<Venue, VenueAdapter.VenueV
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VenueViewHolder {
         val view = ItemVenueBinding.inflate(
-            LayoutInflater.from(parent.context), parent,false
+            LayoutInflater.from(parent.context), parent, false
         )
         return VenueViewHolder(view)
     }
@@ -38,12 +53,13 @@ class VenueAdapter(val context: Context): ListAdapter<Venue, VenueAdapter.VenueV
     override fun onBindViewHolder(holder: VenueViewHolder, position: Int) {
         holder.bindData(getItem(position))
     }
-    companion object DiffCallBack: DiffUtil.ItemCallback<Venue>() {
-        override fun areItemsTheSame(oldItem: Venue, newItem: Venue): Boolean {
-            return oldItem.id == newItem.id
+
+    companion object DiffCallBack : DiffUtil.ItemCallback<VenueAndFavorite>() {
+        override fun areItemsTheSame(oldItem: VenueAndFavorite, newItem: VenueAndFavorite): Boolean {
+            return oldItem.venue.id == newItem.venue.id
         }
 
-        override fun areContentsTheSame(oldItem: Venue, newItem: Venue): Boolean {
+        override fun areContentsTheSame(oldItem: VenueAndFavorite, newItem: VenueAndFavorite): Boolean {
             return oldItem == newItem
         }
     }

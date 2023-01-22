@@ -9,6 +9,7 @@ import androidx.room.RoomDatabase
 abstract class AppDatabase:RoomDatabase() {
     abstract val venueDao: VenueDao
     abstract val favoriteDao: FavoriteDao
+    abstract val venueAndFavoriteDao:VenueAndFavoriteDao
 
     companion object{
         private var INSTANCE: AppDatabase? = null

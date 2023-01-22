@@ -69,11 +69,13 @@ class AppRepository(private val appDatabase: AppDatabase){
 
 
     // Functions for venueDao
-    fun getAllVenues() = appDatabase.venueDao.getAllVenues()
     private suspend fun insertAllVenues(venueList:List<Venue>) = appDatabase.venueDao.insertAllVenues(venueList)
 
     // Functions for favoriteDao
     fun getAllFavorites() = appDatabase.favoriteDao.getAllFavorites()
     suspend fun addFavorite(favoriteVenue: Favorite) = appDatabase.favoriteDao.addFavorite(favoriteVenue)
-    suspend fun removeFavorite(favoriteVenue: Favorite) = appDatabase.favoriteDao.removeFavorite(favoriteVenue)
+    suspend fun removeFavorite(venueId:String) = appDatabase.favoriteDao.removeFavorite(venueId)
+
+    // Functions for VenueAndFavoriteDao
+    fun getVenueAndFavorite()= appDatabase.venueAndFavoriteDao.getVenueAndFavorite()
 }

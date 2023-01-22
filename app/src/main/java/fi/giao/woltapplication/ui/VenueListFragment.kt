@@ -19,7 +19,10 @@ import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import fi.giao.woltapplication.adapter.VenueAdapter
+import fi.giao.woltapplication.database.Favorite
+import fi.giao.woltapplication.database.VenueAndFavorite
 import fi.giao.woltapplication.databinding.FragmentVenueListBinding
+import fi.giao.woltapplication.util.VenueFunctions
 import fi.giao.woltapplication.viewmodel.VenueViewModel
 import fi.giao.woltapplication.viewmodel.VenueViewModelFactory
 import java.util.concurrent.TimeUnit
@@ -29,7 +32,7 @@ class VenueListFragment : Fragment() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private var cancellationTokenSource = CancellationTokenSource()
-
+    private var isFavorite = false
     private val viewModel: VenueViewModel by viewModels {
         VenueViewModelFactory(requireActivity().application)
     }
@@ -52,17 +55,39 @@ class VenueListFragment : Fragment() {
             priority  = PRIORITY_HIGH_ACCURACY
         }
         getLocation()
-        val venueAdapter = VenueAdapter(requireContext())
+        val venueAdapter = VenueAdapter(context = requireContext(),::heartClickListener)
         binding.venueListRecyclerView.apply {
             adapter = venueAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
-        viewModel.venueList.observe(viewLifecycleOwner) {
+
+        viewModel.venueAndFavoriteList.observe(viewLifecycleOwner) {
             venueAdapter.submitList(it)
         }
-
     }
 
+    private fun heartClickListener(venueAndFavorite: VenueAndFavorite):Boolean {
+        viewModel.venueInFavorite.observe(viewLifecycleOwner) {
+            isFavorite = VenueFunctions.isFavorite(venue_id = venueAndFavorite.venue.id, list = it)
+        }
+        if (!isFavorite) {
+            viewModel.addFavorite(Favorite(id = 0, venue_id = venueAndFavorite.venue.id))
+
+            Toast.makeText(
+                requireContext(),
+                "Added ${venueAndFavorite.venue.name} to favorite",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            viewModel.removeFavorite(venueId = venueAndFavorite.venue.id)
+            Toast.makeText(
+                requireContext(),
+                "Remove ${venueAndFavorite.venue.name} from favorite",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        return !isFavorite
+    }
 
     private fun getLocation(){
         if(checkPermissions()) {

@@ -14,9 +14,7 @@ data class Venue (
 
 @Dao
 interface VenueDao {
-    @Query("SELECT * FROM Venue")
-    fun getAllVenues(): LiveData<List<Venue>>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllVenues(venueList:List<Venue>)
+
 }
