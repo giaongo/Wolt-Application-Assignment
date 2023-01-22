@@ -9,7 +9,10 @@ import fi.giao.woltapplication.database.VenueAndFavorite
 import fi.giao.woltapplication.repository.AppRepository
 import kotlinx.coroutines.launch
 
-
+/**
+ * Date: 22/1/2023
+ *
+ */
 class VenueViewModel(application: Application): AndroidViewModel(application) {
     private val appRepository = AppRepository(AppDatabase.getInstance(application))
 

@@ -27,6 +27,12 @@ import fi.giao.woltapplication.viewmodel.VenueViewModel
 import fi.giao.woltapplication.viewmodel.VenueViewModelFactory
 import java.util.concurrent.TimeUnit
 
+/**
+ * Date: 22/1/2023
+ * Author: Giao Ngo
+ * This fragment does permission request,location fetching, initiates view model to fetch data from network based on
+ * the current coordinates and display data to ui.
+ */
 class VenueListFragment : Fragment() {
     private lateinit var binding: FragmentVenueListBinding
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -47,33 +53,99 @@ class VenueListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        getLocation()
+        initRecyclerView()
+    }
+
+    // This function gets current coordinates, display the result toast based on the location fetching
+    private fun getLocation() {
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireContext())
         locationRequest = LocationRequest.create().apply {
             interval = TimeUnit.SECONDS.toMillis(60)
             fastestInterval = TimeUnit.SECONDS.toMillis(30)
             maxWaitTime = TimeUnit.MINUTES.toMillis(2)
-            priority  = PRIORITY_HIGH_ACCURACY
+            priority = PRIORITY_HIGH_ACCURACY
         }
-        getLocation()
-        val venueAdapter = VenueAdapter(context = requireContext(),::heartClickListener)
+        if (checkPermissions()) {
+            val currentLocationTask: Task<Location> =
+                fusedLocationProviderClient.getCurrentLocation(
+                    PRIORITY_HIGH_ACCURACY,
+                    cancellationTokenSource.token
+                )
+            currentLocationTask.addOnCompleteListener(requireActivity()) {
+                val location: Location? = it.result
+                if (location == null) {
+                    Toast.makeText(requireActivity(), "Null Received", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireActivity(), "Get Coordinates", Toast.LENGTH_SHORT).show()
+                    viewModel.getVenueData(
+                        listOf(
+                            location.latitude.toString(),
+                            location.longitude.toString()
+                        )
+                    )
+                }
+            }
+        } else {
+            requestPermission()
+        }
+    }
+
+    // This function does permission checking
+    private fun checkPermissions(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+            == PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
+    }
+
+    // This function requests permission if the location permission has not been granted yet
+    private fun requestPermission() {
+        val requestMultiplePermissions =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+                if (!(permissions["ACCESS_COARSE_LOCATION"] == true || permissions["ACCESS_FINE_LOCATION"] == true)) {
+                    getLocation()
+                }
+            }
+        requestMultiplePermissions.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        )
+    }
+
+    // This function initialises adapter for recycler view
+    private fun initRecyclerView() {
+        val venueAdapter = VenueAdapter(context = requireContext(), listener = ::heartClickListener)
         binding.venueListRecyclerView.apply {
             adapter = venueAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
-
         viewModel.venueAndFavoriteList.observe(viewLifecycleOwner) {
             venueAdapter.submitList(it)
-
         }
     }
 
-    private fun heartClickListener(venueAndFavorite: VenueAndFavorite):Boolean {
+    /* This function does venue favorite checking, un-mark or mark venue based on the click and
+       isFavorite value state. Display Toast as a result of the click event */
+    private fun heartClickListener(venueAndFavorite: VenueAndFavorite): Boolean {
         viewModel.venueInFavorite.observe(viewLifecycleOwner) {
             isFavorite = VenueFunctions.isFavorite(venue_id = venueAndFavorite.venue.id, list = it)
         }
         if (!isFavorite) {
             viewModel.addFavorite(Favorite(id = 0, venue_id = venueAndFavorite.venue.id))
-
             Toast.makeText(
                 requireContext(),
                 "Added ${venueAndFavorite.venue.name} to favorite",
@@ -90,48 +162,5 @@ class VenueListFragment : Fragment() {
         return !isFavorite
     }
 
-    private fun getLocation(){
-        if(checkPermissions()) {
-            val currentLocationTask: Task<Location> = fusedLocationProviderClient.getCurrentLocation(
-                PRIORITY_HIGH_ACCURACY,
-                cancellationTokenSource.token
-            )
-            currentLocationTask.addOnCompleteListener(requireActivity()) {
-                val location:Location?=it.result
-                if (location == null) {
-                    Toast.makeText(requireActivity(),"Null Received",Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(requireActivity(),"Get Coordinates", Toast.LENGTH_SHORT).show()
-                    viewModel.getVenueData(listOf(location.latitude.toString(),location.longitude.toString()))
-                }
-            }
-        } else {
-            requestPermission()
-        }
-    }
-
-    private fun checkPermissions() : Boolean{
-        if(ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(requireContext(),Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED) {
-            return true
-        }
-        return false
-    }
-
-    private fun requestPermission() {
-        val requestMultiplePermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            if(!(permissions["ACCESS_COARSE_LOCATION"] == true || permissions["ACCESS_FINE_LOCATION"] == true)) {
-                getLocation()
-            }
-        }
-        requestMultiplePermissions.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-        )
-    }
 }
 

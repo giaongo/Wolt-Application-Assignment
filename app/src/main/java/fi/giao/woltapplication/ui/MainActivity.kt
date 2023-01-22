@@ -7,6 +7,11 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupActionBarWithNavController
 import fi.giao.woltapplication.R
 
+/**
+ * Date: 22/1/2023
+ * Author:Giao Ngo
+ * This activity contains host fragment and up action bar setting
+ */
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     override fun onCreate(savedInstanceState: Bundle?) {
