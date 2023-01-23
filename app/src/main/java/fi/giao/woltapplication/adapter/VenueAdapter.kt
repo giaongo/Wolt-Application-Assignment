@@ -13,7 +13,7 @@ import fi.giao.woltapplication.databinding.ItemVenueBinding
 
 class VenueAdapter(
     private val context: Context,
-    private val listener: (VenueAndFavorite) -> Boolean
+    private val listener: (VenueAndFavorite) -> Unit
 ) : ListAdapter<VenueAndFavorite, VenueAdapter.VenueViewHolder>(DiffCallBack) {
 
     inner class VenueViewHolder(private val binding: ItemVenueBinding) :

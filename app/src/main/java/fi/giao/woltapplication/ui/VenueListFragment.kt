@@ -21,7 +21,6 @@ import fi.giao.woltapplication.adapter.VenueAdapter
 import fi.giao.woltapplication.database.Favorite
 import fi.giao.woltapplication.database.VenueAndFavorite
 import fi.giao.woltapplication.databinding.FragmentVenueListBinding
-import fi.giao.woltapplication.util.VenueFunctions
 import fi.giao.woltapplication.viewmodel.VenueViewModel
 import fi.giao.woltapplication.viewmodel.VenueViewModelFactory
 import java.util.concurrent.TimeUnit
@@ -37,7 +36,6 @@ class VenueListFragment : Fragment() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private var cancellationTokenSource = CancellationTokenSource()
-    private var isFavorite = false
     private val viewModel: VenueViewModel by viewModels {
         VenueViewModelFactory(requireActivity().application)
     }
@@ -139,10 +137,8 @@ class VenueListFragment : Fragment() {
 
     /* This function does venue favorite checking, un-mark or mark venue based on the click and
        isFavorite value state. Display Toast as a result of the click event */
-    private fun heartClickListener(venueAndFavorite: VenueAndFavorite): Boolean {
-        viewModel.venueIdList.observe(viewLifecycleOwner) {
-            isFavorite = VenueFunctions.isFavorite(venue_id = venueAndFavorite.venue.id, list = it)
-        }
+    private fun heartClickListener(venueAndFavorite: VenueAndFavorite) {
+        val isFavorite = venueAndFavorite.favorite != null
         if (!isFavorite) {
             viewModel.addFavorite(Favorite(id = 0, venue_id = venueAndFavorite.venue.id))
             Toast.makeText(
@@ -158,7 +154,6 @@ class VenueListFragment : Fragment() {
                 Toast.LENGTH_SHORT
             ).show()
         }
-        return !isFavorite
     }
 
 }

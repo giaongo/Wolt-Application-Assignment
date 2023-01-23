@@ -12,10 +12,6 @@ class VenueViewModel(application: Application): AndroidViewModel(application) {
     private val appRepository = AppRepository(AppDatabase.getInstance(application))
     val venueAndFavoriteList:LiveData<List<VenueAndFavorite>> = appRepository.getVenueAndFavorite()
 
-    val venueIdList: LiveData<List<String?>> = Transformations.map(venueAndFavoriteList) {
-        it.map { element -> element.favorite?.venue_id}
-    }
-
     fun addFavorite(favoriteVenue:Favorite) = viewModelScope.launch {
         appRepository.addFavorite(favoriteVenue)
     }
